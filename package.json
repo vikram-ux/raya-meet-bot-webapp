@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.0.6",
+    "@ant-design/icons": "^6.1.0",
+    "@supabase/supabase-js": "^2.89.0",
+    "antd": "^6.1.0",
+    "axios": "^1.13.2",
+    "next": "^16.0.8",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-router-dom": "^7.10.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
