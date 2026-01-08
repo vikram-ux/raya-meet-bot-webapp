@@ -2,17 +2,19 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Breadcrumb, Button, Input, Tooltip } from 'antd';
-import { 
-  MenuOutlined, 
-  EllipsisOutlined, 
-  SearchOutlined, 
-  ReadOutlined, 
-  SoundOutlined, 
-  MessageOutlined, 
+import {
+  MenuOutlined,
+  EllipsisOutlined,
+  SearchOutlined,
+  ReadOutlined,
+  SoundOutlined,
+  MessageOutlined,
   TagOutlined,
-  CloseOutlined 
+  CloseOutlined,
+  PlusOutlined
 } from '@ant-design/icons';
-
+import SmartSearchPanel from "@/components/Meeting-Detail/SmartSearchPanel";
+import SmartNotesPanel from "@/components/Meeting-Detail/SmartNotesPanel";
 // Feature Components
 import TranscriptPanel from "@/components/Transcript/TranscriptPanel";
 import ChatBotPanel from "@/components/Chatbot/ChatBotPanel";
@@ -26,10 +28,10 @@ export default function FirefliesUI() {
   const [activeTab, setActiveTab] = useState("transcript");
   const [search, setSearch] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [activePanel, setActivePanel] = useState(null); 
+  const [activePanel, setActivePanel] = useState(null);
   const [rightWidth, setRightWidth] = useState(30);
   const [dragging, setDragging] = useState(false);
-  
+
   const audioRef = useRef(null);
   const containerRef = useRef(null);
 
@@ -47,8 +49,8 @@ export default function FirefliesUI() {
   }, [id]);
 
   const transcript = data?.raw_json || [];
-  const audioUrl = data?.meeting_id 
-    ? `http://localhost:8000/File/${data.meeting_id}/Combined_Meeting.wav` 
+  const audioUrl = data?.meeting_id
+    ? `http://localhost:8000/File/${data.meeting_id}/Combined_Meeting.wav`
     : null;
 
   const handlePlayPause = async () => {
@@ -97,7 +99,7 @@ export default function FirefliesUI() {
         <div className="flex items-center gap-2">
           <Button type="text" icon={<MenuOutlined />} />
           <Breadcrumb items={[
-            { title: <span className="cursor-pointer font-medium text-gray-400 hover:text-purple-600" onClick={() => router.push('/meetings')}>Meetings</span> }, 
+            { title: <span className="cursor-pointer font-medium text-gray-400 hover:text-purple-600" onClick={() => router.push('/meetings')}>Meetings</span> },
             { title: <span className="font-semibold text-gray-800">{data?.title || "Loading..."}</span> }
           ]} />
           <Button type="text" icon={<EllipsisOutlined />} />
@@ -112,13 +114,12 @@ export default function FirefliesUI() {
         <aside className="w-14 bg-white  flex flex-col items-center py-4 gap-4 shrink-0 z-50 shadow-sm">
           {sidebarItems.map((item) => (
             <Tooltip key={item.id} title={item.label} placement="right">
-              <button 
+              <button
                 onClick={() => setActivePanel(activePanel === item.id ? null : item.id)}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 text-xl ${
-                  activePanel === item.id 
-                    ? "bg-purple-50 text-purple-600 shadow-sm" 
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
+                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 text-xl ${activePanel === item.id
+                  ? "bg-purple-50 text-purple-600 shadow-sm"
+                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                  }`}
               >
                 {item.icon}
               </button>
@@ -127,14 +128,43 @@ export default function FirefliesUI() {
         </aside>
 
         {activePanel && (
-          <div className="w-72 bg-white  flex flex-col shadow-sm z-40">
-            <div className="p-4  flex justify-between items-center bg-gray-100">
-              <span className="font-bold text-gray-700 uppercase text-xs tracking-wider">
-                {sidebarItems.find(i => i.id === activePanel)?.label}
-              </span>
-              <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => setActivePanel(null)} />
+          <div className="w-80 bg-white flex flex-col shadow-lg z-40 border-r border-gray-200">
+            {/* Header Section */}
+            <div className="p-4 flex justify-between items-center border-b border-gray-100">
+              <h3 className="font-bold text-gray-800 text-base">
+                {activePanel === 'search' && 'Smart Search'}
+                {activePanel === 'notes' && 'Index'}
+                {/* Baki panels ke liye default name */}
+                {activePanel !== 'search' && activePanel !== 'notes' &&
+                  sidebarItems.find(i => i.id === activePanel)?.label}
+              </h3>
+
+              <div className="flex items-center gap-1">
+                {/* Index panel mein plus button dikhane ke liye */}
+                {activePanel === 'notes' && (
+                  <Button type="text" size="small" icon={<PlusOutlined className="text-gray-500" />} />
+                )}
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CloseOutlined />}
+                  onClick={() => setActivePanel(null)}
+                />
+              </div>
             </div>
-            <div className="p-6 text-gray-400 italic text-sm text-center">No content yet.</div>
+
+            {/* Content Section: Yahan Panels Switch ho rahe hain */}
+            <div className="flex-1 overflow-y-auto">
+              {activePanel === "search" ? (
+                <SmartSearchPanel />
+              ) : activePanel === "notes" ? (
+                <SmartNotesPanel />
+              ) : (
+                <div className="p-6 text-gray-400 italic text-sm text-center">
+                  No content yet.
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -154,12 +184,12 @@ export default function FirefliesUI() {
               <button onClick={() => setActiveTab("askfred")} className={`pb-2 border-b-2 transition-all ${activeTab === "askfred" ? "border-purple-600 text-purple-600" : "border-transparent text-gray-400"}`}>AskFred</button>
             </div>
             {activeTab === "transcript" && (
-              <Input 
-              style={{top: 10, padding: 8}}
-                placeholder="Find or Replace" 
+              <Input
+                style={{ top: 10, padding: 8 }}
+                placeholder="Find or Replace"
                 prefix={<SearchOutlined />}
-                value={search} 
-                onChange={(e) => setSearch(e.target.value)} 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="mb-2 rounded-lg"
                 allowClear
               />

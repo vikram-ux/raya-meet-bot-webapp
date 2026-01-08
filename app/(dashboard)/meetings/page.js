@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Layout, Typography, Space, Spin, Result, Button, Modal, Input } from 'antd';
 import MeetingSidebar from "@/components/Meetings/MeetingSidebar";
 import LetterAvatar from "@/components/Ui/LetterAvatar";
+import { useUser } from '@stackframe/stack';
 
 import {
   CalendarOutlined,
@@ -68,6 +69,7 @@ function groupMeetingsByWeek(meetings) {
 // ----------------------
 
 export default function MeetingList() {
+  const user = useUser();
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,17 +79,18 @@ export default function MeetingList() {
   const [searchChannel, setSearchChannel] = useState('');
   const [channels, setChannels] = useState([]);
 
-  async function fetchMeetings() {
+  async function fetchMeetings(userId) {
+    if (!userId) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8000/get_meeting_list");
+      // Hardcoded ID hata kar dynamic userId daali
+      const response = await fetch(`http://localhost:8000/get_meeting_list?user_id=${userId}`);
 
       if (!response.ok) throw new Error("Failed to fetch meetings");
 
       const data = await response.json();
       const normalized = Array.isArray(data.meetings) ? data.meetings : [];
-
       setMeetings(normalized);
 
     } catch (err) {
@@ -98,9 +101,12 @@ export default function MeetingList() {
     }
   }
 
+  // 2. Dependency array se extra brackets [[]] hataye
   useEffect(() => {
-    fetchMeetings();
-  }, []);
+    if (user?.id) {
+      fetchMeetings(user.id);
+    }
+  }, [user?.id]);
 
   const groupedMeetings = groupMeetingsByWeek(meetings);
 
@@ -366,16 +372,16 @@ export default function MeetingList() {
               <h2 className="text-xl font-semibold text-gray-800 mb-2">My Meetings</h2>
               <p className="text-gray-600 mb-6">Only your hosted meetings are shown.</p>
 
-              {meetings.filter(m => m.user === "Vikram").length === 0 && (
+              {meetings.filter(m => m.user_id === user?.id).length === 0 && (
                 <p className="text-gray-400 text-center mt-20">No personal meetings found.</p>
               )}
 
               <div className="space-y-4">
                 {meetings
-                  .filter(m => m.user === "Vikram")
+                  .filter(m => m.user_id === user?.id)
                   .map((meeting) => (
                     <Link
-                      href={`/meeting-detail/${meeting.meeting_id}`}
+                    href={`/meeting-detail/${meeting.meeting_id}`}
                       key={meeting.meeting_id}
                       className="bg-white border border-gray-200 rounded-lg px-6 py-4 shadow-sm hover:shadow-md transition-all flex justify-between items-center"
                     >

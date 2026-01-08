@@ -1,6 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackClientApp } from "../stack/client";
+import { Suspense } from "react";
+import UserSchemaHandler from "@/components/UserSchemaHandler";
 import "./globals.css";
-// import HelpButton from "@/components/Ui/HelpButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,10 +23,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
-        {/* <HelpButton/> */}
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}><StackProvider app={stackClientApp}><StackTheme>
+        <StackProvider app={stackClientApp}>
+          <StackTheme>
+          <Suspense fallback={null}> 
+              <UserSchemaHandler />
+            </Suspense>
+            {children}
+          </StackTheme>
+        </StackProvider>
+      </StackTheme></StackProvider></body>
     </html>
   );
 }

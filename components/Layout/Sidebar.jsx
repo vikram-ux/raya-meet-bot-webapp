@@ -60,7 +60,7 @@ export default function Sidebar() {
     { key: "/meetings", label: "Meetings", icon: <VideoCameraOutlined /> },
     { key: "/status", label: "Meeting Status", icon: <RiseOutlined /> },
     { key: "/uploads", label: "Uploads", icon: <UploadOutlined /> },
-    { key: "/integration", label: "Integration", icon: <ProductOutlined /> },
+    { key: "/integrations", label: "Integrations", icon: <ProductOutlined /> },
     { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
     { key: "/AI Apps", label: "AI Apps", icon: <AppstoreOutlined /> },
     { key: "/team", label: "Team", icon: <TeamOutlined /> },
@@ -116,7 +116,7 @@ export default function Sidebar() {
       <Menu
         theme="dark"
         mode="inline"
-        selectedKeys={[pathname]}
+        selectedKeys={[pathname.startsWith('/integrations') ? '/integrations' : pathname]}
         items={sidebarItems} 
         onClick={onMenuClick}
         style={{ borderRight: 0 }}
