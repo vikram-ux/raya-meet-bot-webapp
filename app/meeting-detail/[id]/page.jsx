@@ -12,6 +12,7 @@ import SmartNotesPanel from "@/components/Meeting-Detail/SmartNotesPanel";
 import TranscriptPanel from "@/components/Transcript/TranscriptPanel";
 import ChatBotPanel from "@/components/Chatbot/ChatBotPanel";
 import AudioPlayer from "@/components/Audio/AudioPlayer";
+import { UserButton } from "@stackframe/stack";
 
 export default function MeetingDetails() {
   const { id } = useParams();
@@ -97,7 +98,8 @@ export default function MeetingDetails() {
         </div>
         <div className="flex items-center gap-3">
           <button className="bg-purple-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-purple-700 transition">Share</button>
-          <div className="w-8 h-8 rounded-full bg-indigo-500 border-2 border-white shadow-sm" />
+          {/* <div className="w-8 h-8 rounded-full bg-indigo-500 border-2 border-white shadow-sm" /> */}
+          <UserButton/>
         </div>
       </header>
 

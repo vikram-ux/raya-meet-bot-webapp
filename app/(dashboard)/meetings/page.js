@@ -79,34 +79,34 @@ export default function MeetingList() {
   const [searchChannel, setSearchChannel] = useState('');
   const [channels, setChannels] = useState([]);
 
-  async function fetchMeetings(userId) {
+  const fetchMeetings = async (userId) => {
+    // Guard Clause: Bina ID ke request mat bhejo
     if (!userId) return;
+  
     setLoading(true);
     setError(null);
+  
     try {
-      // Hardcoded ID hata kar dynamic userId daali
+      // Dynamic userId pass karein query parameter mein
       const response = await fetch(`http://localhost:8000/get_meeting_list?user_id=${userId}`);
-
+      
       if (!response.ok) throw new Error("Failed to fetch meetings");
-
+  
       const data = await response.json();
-      const normalized = Array.isArray(data.meetings) ? data.meetings : [];
-      setMeetings(normalized);
-
+      // Backend se meetings key ke andar data milta hai
+      setMeetings(Array.isArray(data.meetings) ? data.meetings : []);
     } catch (err) {
       setError(err.message || "Error fetching data");
-      setMeetings([]);
     } finally {
       setLoading(false);
     }
-  }
+  };  
 
-  // 2. Dependency array se extra brackets [[]] hataye
   useEffect(() => {
     if (user?.id) {
       fetchMeetings(user.id);
     }
-  }, [user?.id]);
+  }, [user?.id]); // Correct dependency array
 
   const groupedMeetings = groupMeetingsByWeek(meetings);
 
@@ -191,14 +191,16 @@ export default function MeetingList() {
             title="Failed to Load Meeting Data"
             subTitle={error}
             extra={[
-              <Button
-                type="primary"
-                key="retry"
-                onClick={fetchMeetings}
-                style={{ backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
-              >
-                Try Again
-              </Button>
+              // Error state return block mein:
+<Button
+  type="primary"
+  key="retry"
+  // Arrow function use karein taaki user.id pass ho sake
+  onClick={() => fetchMeetings(user?.id)}
+  style={{ backgroundColor: '#7c3aed', borderColor: '#7c3aed' }}
+>
+  Try Again
+</Button>
             ]}
           />
         </div>

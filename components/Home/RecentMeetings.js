@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 import styles from "./recentMeetings.module.css";
 import Link from "next/link";
-
+import { useUser } from '@stackframe/stack';
 // Custom Components
 import LetterAvatar from "@/components/Ui/LetterAvatar";
 import ChatBotPanel from "@/components/Chatbot/ChatBotPanel";
@@ -19,6 +19,7 @@ import ChatBotPanel from "@/components/Chatbot/ChatBotPanel";
 const { Text, Title } = Typography;
 
 export default function RecentMeetings() {
+  const user = useUser();
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +35,7 @@ export default function RecentMeetings() {
     async function fetchMeetings() {
       try {
         setLoading(true);
-        const res = await fetch("http://localhost:8000/get_meeting_list");
+        const res = await fetch(`http://localhost:8000/get_meeting_list?user_id=${user.id}`);
         if (!res.ok) throw new Error("Failed to fetch meetings");
         const data = await res.json();
         const list = Array.isArray(data.meetings) ? data.meetings : [];
@@ -47,7 +48,7 @@ export default function RecentMeetings() {
     }
     fetchMeetings();
     return () => { mounted = false; };
-  }, []);
+  }, [user?.id]);
 
   const formatDateTime = (value) => {
     const d = new Date(value);
